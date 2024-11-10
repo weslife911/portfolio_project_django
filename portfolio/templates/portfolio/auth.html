@@ -1,0 +1,55 @@
+{% extends 'home.html' %}
+
+{% load static %}
+
+{% block content %}
+
+<div class="container">
+  {% if page == "login" %}
+  <div class="login form">
+    <header>Login</header>
+    <form action="" method="post">
+      {% csrf_token %}
+      <input type="text" placeholder="Enter your email" name="email">
+      <input type="password" placeholder="Enter your password" name="password">
+      <!-- <a href="#">Forgot password?</a> -->
+      <input type="submit" class="button" value="Login">
+    </form>
+    <div class="signup">
+      <span class="signup">Don't have an account?
+       <a href="{% url 'register' %}">
+        Signup
+       </a>
+      </span>
+    </div>
+  </div>
+{% else %}
+  <div class="registration form">
+    <header>Signup</header>
+    <form action="" method="post">
+      {% csrf_token %}
+      {{form.as_p}}
+      <input type="submit" class="button" value="Signup">
+    </form>
+    <div class="signup">
+      <span class="signup">Already have an account?
+       <a href="{% url 'login' %}">
+        Login
+       </a>
+      </span>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% if messages %}
+
+{% for message in messages %}
+
+{{message}}
+
+{% endfor %}
+
+{% endif %}
+
+{% endblock content %}
