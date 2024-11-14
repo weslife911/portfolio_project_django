@@ -4,16 +4,20 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .forms import *
 from .models import *
+from .pdf import html2pdf
+from django.http import HttpResponse, Http404
+from datetime import datetime
 
 # Create your views here.
 
 @login_required(login_url="login/")
 def home(request):
-    about = AboutUser.objects.all()
-    exp = UserExperience.objects.all()
-    skills = UserSkills.objects.all()
+    about = AboutUser.objects.filter(user=request.user)
+    exp = UserExperience.objects.filter(user=request.user)
+    skills = UserSkills.objects.filter(user=request.user)
+    current_year = datetime.now().year
 
-    context = {"title" : "Portfolio Project", "about" : about, "skills" : skills, "exp" : exp}
+    context = {"title" : "Portfolio Project", "about" : about, "skills" : skills, "exp" : exp, "year" : current_year}
     return render(request, "portfolio/index.html", context)
 
 def register_user(request):
@@ -24,7 +28,7 @@ def register_user(request):
         form = RegistrationForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect("about")
+            return redirect("login")
         else:
             form = RegistrationForm()
             messages.error(request, "Invalid email or passwords don't match!!!")
@@ -71,19 +75,19 @@ def about_user(request):
 
 @login_required(login_url="login/")
 def update_profile(request):
-    form = AboutForm(instance=request.user)
-    profile, created = AboutUser.objects.get_or_create(user=request.user)
+    user = request.user.aboutuser
+    form = AboutForm(instance=user)
 
     if request.method == "POST":
-        form = AboutForm(request.POST, request.FILES, instance=profile)
+        form = AboutForm(request.POST, request.FILES, instance=user)
         if form.is_valid():
             form.save()
             return redirect("home")
         else:
-            form = AboutForm(instance=request.user)
+            form = AboutForm(instance=user)
 
-    context = {"form" : form}
-    return render(request, "portfolio/update.html", context)
+    context = {"form" : form, "user" : user}
+    return render(request, "portfolio/update_profile.html", context)
 
 @login_required(login_url="login/")
 def user_skills(request):
@@ -104,6 +108,29 @@ def user_skills(request):
     return render(request, "portfolio/skill.html", context)
 
 @login_required(login_url="login/")
+def update_skills(request, pk):
+    skill = UserSkills.objects.get(id=pk)
+    form = SkillForm(instance=skill)
+
+    if request.method == "POST":
+        form = SkillForm(request.POST, instance=skill)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        else:
+            form = SkillForm(instance=skill)
+
+    context = {"form" : form}
+    return render(request, "portfolio/edit_skills.html", context)
+
+@login_required(login_url="login/")
+def delete_skill(request, pk):
+    skill = UserSkills.objects.get(id=pk)
+
+    skill.delete()
+    return redirect("home")
+
+@login_required(login_url="login/")
 def exp(request):
     form = ExperienceForm()
 
@@ -119,3 +146,49 @@ def exp(request):
 
     context = {"form" : form}
     return render(request, "portfolio/exp.html", context)
+
+@login_required(login_url="login/")
+def update_exp(request, pk):
+    exp = UserExperience.objects.get(id=pk)
+    form = ExperienceForm(instance=exp)
+
+    if request.method == "POST":
+        form = ExperienceForm(request.POST, instance=exp)
+        if form.is_valid():
+            form.save()
+            return redirect("home")
+        else:
+            form = ExperienceForm(instance=exp)
+
+    context = {"form" : form}
+    return render(request, "portfolio/update_exp.html", context)
+
+@login_required(login_url="login/")
+def delete_exp(request, pk):
+    exp = UserExperience.objects.get(id=pk)
+
+    exp.delete()
+    return redirect("home")
+
+@login_required(login_url="login/")
+def view_cv(request):
+    about = AboutUser.objects.filter(user=request.user)
+    skill = UserSkills.objects.filter(user=request.user)
+    exp = UserExperience.objects.filter(user=request.user)
+    context_dict = {
+        "user" : request.user,
+        "about" : about,
+        "skill" : skill,
+        "exp" : exp
+    }
+    pdf = html2pdf("portfolio/cv.html", context_dict)
+
+    if pdf:
+        response = HttpResponse(pdf, content_type="application/pdf")
+        file_name = "cv.pdf"
+        content = f"inline; filename={file_name}"
+        response["Content-Disposition"] = content
+        return response
+    else:
+        return Http404("PDF file doesn't exist")
+    

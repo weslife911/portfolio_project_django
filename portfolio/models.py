@@ -15,7 +15,7 @@ class User(AbstractUser):
 
 class AboutUser(models.Model):
     profile_image = models.ImageField(upload_to="user_images/", default="avatar.svg")
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     about = models.TextField(blank=True)
     name = models.CharField(max_length=100)
     degree = models.CharField(max_length=100, null=True)

@@ -1,0 +1,88 @@
+<h1>
+    About
+</h1>
+
+{% for about in about %}
+
+<img src="{{about.profile_image.path}}" width="300px" alt="{{about.name}}">
+
+<p>
+    Name : {{about.name}}
+</p>
+<p>
+    Email : {{user.email}}
+</p>
+<p>
+    Degree : {{about.degree}}
+</p>
+<p>
+    Phone : {{about.phone}}
+</p>
+<p>
+    Address : {{about.address}}
+</p>
+<p>
+    Birthday : {{about.birthday}}
+</p>
+<p>
+    Experience : {{about.experience}}
+</p>
+<p>
+    Happy Clients : {{about.happy_clients}}
+</p>
+<p>
+    Complete Projects : {{about.complete_projects}}
+</p>
+
+
+{% endfor %}
+
+<h1>
+    Skills
+</h1>
+
+<table>
+    <thead>
+        <th>
+            Skill
+        </th>
+        <th>
+            Percentage Knowledge
+        </th>
+    </thead>
+    <tbody>
+        {% for skill in skill %}
+
+        <tr>
+            <td>
+                {{skill.skill}}
+            </td>
+            <td>
+                {{skill.percentage_knowledge}}
+            </td>
+        </tr>
+
+        {% endfor %}
+    </tbody>
+</table>
+
+<h1>
+    Experience
+</h1>
+
+{% for exp in exp %}
+
+<p>
+    Role : {{exp.role}}
+</p>
+<p>
+    Company worked for : {{exp.company_worked_for}}
+</p>
+<p>
+    Period : {{exp.period}}
+</p>
+<p>
+    Job description : {{exp.job_description}}
+</p>
+
+{% endfor %}
