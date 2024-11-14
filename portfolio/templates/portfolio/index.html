@@ -20,19 +20,10 @@
             Logout
         </a>
         
-        {% if user %}
-
         <a href="{% url 'update-profile' %}">
             Update
         </a>
 
-        {% else %}
-        
-        <a href="{% url 'about' %}">
-            Tell us about yourself
-        </a>
-        
-        {% endif %}
     </header>
 {% endif %}
 
