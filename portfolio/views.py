@@ -12,14 +12,12 @@ from datetime import datetime
 
 @login_required(login_url="login/")
 def home(request):
-    user = request.user.aboutuser if request.user.aboutuser != "" else ""
     about = AboutUser.objects.filter(user=request.user)
-    print(user)
     exp = UserExperience.objects.filter(user=request.user)
     skills = UserSkills.objects.filter(user=request.user)
     current_year = datetime.now().year
 
-    context = {"title" : "Portfolio Project", "about" : about, "skills" : skills, "exp" : exp, "year" : current_year, "user" : user}
+    context = {"title" : "Portfolio Project", "about" : about, "skills" : skills, "exp" : exp, "year" : current_year}
     return render(request, "portfolio/index.html", context)
 
 def register_user(request):
@@ -48,7 +46,7 @@ def login_user(request):
         user = authenticate(request, username=email, password=password)
         if user is not None:
             login(request, user)
-            return redirect("about")
+            return redirect("home")
         else:
             messages.error(request, "Credentials invalid!!!")
 
